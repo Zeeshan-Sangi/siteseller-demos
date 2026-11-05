@@ -369,8 +369,10 @@ fieldset.field{border:0;padding:0;margin:0}
 /* cart drawer */
 .scrim{position:fixed;inset:0;background:rgba(4,20,18,.5);z-index:90;opacity:0;pointer-events:none;transition:opacity .25s}
 .scrim.open{opacity:1;pointer-events:auto}
-.drawer{position:fixed;top:0;right:0;bottom:0;width:min(420px,100%);background:#fff;z-index:100;transform:translateX(100%);transition:transform .3s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column;box-shadow:-20px 0 60px -20px rgba(0,0,0,.35)}
-.drawer.open{transform:none}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(420px,100%);background:#fff;z-index:100;transform:translateX(100%);visibility:hidden;transition:transform .3s cubic-bezier(.2,.8,.2,1),visibility 0s linear .3s;display:flex;flex-direction:column}
+.drawer.open{transform:none;visibility:visible;transition:transform .3s cubic-bezier(.2,.8,.2,1);box-shadow:-20px 0 60px -20px rgba(0,0,0,.35)}
+.show-all{display:none}
+.show-all[hidden]{display:none!important}
 .dh{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid var(--line)}
 .dh h3{font-size:20px}
 .x{width:40px;height:40px;border-radius:12px;border:0;background:var(--bg);cursor:pointer;display:grid;place-items:center;font-size:20px}
@@ -451,6 +453,24 @@ fieldset.field{border:0;padding:0;margin:0}
 }
 @media (max-width:640px){
   .wrap{width:calc(100% - 32px)}
+  .topbar .msg{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12.5px}
+  .topbar .msg .long{display:none}
+  .hero-side{grid-template-columns:1fr 1fr!important;gap:12px}
+  .side-card{min-height:190px!important;border-radius:20px}
+  .side-card .in{padding:14px}
+  .side-card h3{font-size:17px}
+  .side-card p{display:none}
+  .side-card .pill{font-size:10px;padding:3px 8px}
+  .side-card .go{font-size:13px;margin-top:6px}
+  .usp span{display:none}
+  .usp div{padding:14px 12px}
+  .grid.collapsed .prod:nth-child(n+9){display:none}
+  .show-all{display:flex;width:100%;margin-top:14px;justify-content:center}
+  .clinic-art{margin-right:0}
+  .clinic-art .mini{display:none}
+  .clinic-art .quote{position:relative;left:auto;right:auto;bottom:auto;margin:-36px 14px 0}
+  .svc .im{aspect-ratio:16/9}
+  .clinic>.wrap>div:last-child{padding-top:0!important}
   .sec{padding:40px 0}
   .hero{padding-top:16px}
   .hero h1{font-size:34px}
@@ -527,7 +547,7 @@ fieldset.field{border:0;padding:0;margin:0}
 <div class="demo-bar" role="note">Concept demo by <b>Zeeshan Azhar</b> — not the official Pets Hut website</div>
 <div class="topbar">
   <div class="wrap">
-    <div class="msg"><svg class="icon"><use href="#i-truck"/></svg>Home delivery across Multan · Order on WhatsApp <b style="color:#fff">0300-1057198</b></div>
+    <div class="msg"><svg class="icon"><use href="#i-truck"/></svg>Home delivery across Multan<span class="long"> · Order on WhatsApp</span> · <b style="color:#fff">0300-1057198</b></div>
     <div class="links">
       <a href="#branches"><svg class="icon"><use href="#i-pin"/></svg>2 branches in Multan</a>
       <a href="#clinic"><svg class="icon"><use href="#i-steth"/></svg>Vet clinic</a>
@@ -652,7 +672,8 @@ fieldset.field{border:0;padding:0;margin:0}
       </div>
     </div>
     <div class="filter-note" id="filterNote" role="status"><span id="filterText"></span><button type="button" id="clearFilter">Clear ✕</button></div>
-    <div class="grid" id="grid"></div>
+    <div class="grid collapsed" id="grid"></div>
+    <button class="btn btn-ghost show-all" type="button" id="showAll">View all products <svg class="icon"><use href="#i-arrow"/></svg></button>
     <p class="price-note">Prices shown are sample prices for this demo — Pets Hut confirms the final price &amp; stock on WhatsApp.</p>
   </div>
 </section>
@@ -998,6 +1019,8 @@ fieldset.field{border:0;padding:0;margin:0}
     note.classList.toggle('show', !!state.crit);
     document.getElementById('filterText').textContent = state.crit ? 'Showing: ' + state.label + ' (' + list.length + ')' : '';
     document.querySelectorAll('.tab').forEach(function(t){ t.setAttribute('aria-selected', t.dataset.filter === state.tab); });
+    var g = document.getElementById('grid'), sa = document.getElementById('showAll');
+    g.classList.add('collapsed'); sa.hidden = list.length <= 8;
     syncAddButtons();
   }
   function setTab(t){ state.tab = t; state.crit = null; state.label = ''; render(); }
@@ -1014,6 +1037,7 @@ fieldset.field{border:0;padding:0;margin:0}
     if (a.dataset.brand){ e.preventDefault(); goShop(); }
   });
   document.getElementById('clearFilter').addEventListener('click', function(){ setTab('all'); });
+  document.getElementById('showAll').addEventListener('click', function(){ document.getElementById('grid').classList.remove('collapsed'); this.hidden = true; });
   document.getElementById('searchForm').addEventListener('submit', function(e){
     e.preventDefault();
     var q = document.getElementById('q').value.trim();
